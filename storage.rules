@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Альбоми — читання відкрите (хто знає посилання — може скачати)
+    match /albums/{albumId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;  // запис тільки через скрипт
+    }
+  }
+}
