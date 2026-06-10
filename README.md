@@ -4,7 +4,7 @@ Production-grade web gallery for delivering professional photo work to clients �
 
 ## 🚀 Live Demo
 
-🔗 https://iryna-kaida-gallery-elf.web.app
+🔗 [Фіолетове літо — sample album](https://iryna-kaida-gallery-elf.web.app/?a=fioletove-lito)
 
 ## 🎯 Why I built this
 
