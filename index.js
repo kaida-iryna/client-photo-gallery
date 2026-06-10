@@ -189,11 +189,6 @@ function layoutMasonry() {
   if (containerWidth < 900) columnCount = 2;
   if (containerWidth < 480) columnCount = 1;
 
-  // якщо в останньому ряді буде 1 самотнє фото — зменшуємо колонки
-  if (columnCount >= 3 && items.length % columnCount === 1) {
-    columnCount--;
-  }
-
   const gap         = 16;
   const columnWidth = (containerWidth - gap * (columnCount - 1)) / columnCount;
 

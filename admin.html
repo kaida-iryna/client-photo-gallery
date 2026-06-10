@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Завантаження альбому</title>
+  <title>Адмін — Ірина Кайда</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css" />
@@ -14,13 +14,31 @@
 
     <header class="page-header">
       <h1 class="page-title">Ірина <em>Кайда</em></h1>
-      <p class="page-sub">Завантаження альбому</p>
+      <p class="page-sub">Панель керування</p>
     </header>
 
     <main class="form-wrap">
 
-      <!-- Дані альбому -->
+      <!-- Список альбомів -->
       <section class="form-section">
+        <h2 class="section-title">Мої альбоми</h2>
+
+        <div class="import-wrap">
+          <div class="import-row">
+            <input type="text" id="import-id" placeholder="ID існуючого альбому" />
+            <button class="btn-import" id="btn-import">Додати</button>
+          </div>
+        </div>
+
+        <div class="albums-list" id="albums-list">
+          <p class="albums-empty" id="albums-empty">Завантаження...</p>
+        </div>
+
+      </section>
+
+      <!-- Завантажити новий альбом -->
+      <section class="form-section">
+        <h2 class="section-title">Новий альбом</h2>
 
         <div class="field">
           <label for="album-name">Назва альбому</label>
@@ -30,20 +48,8 @@
         <div class="field">
           <label for="drive-link">Посилання на папку Google Drive</label>
           <input type="text" id="drive-link" />
-          <span class="hint">Папка з оригіналами — має бути відкрита «для всіх з посиланням»</span>
+          <span class="hint">Папка з оригіналами — відкрита «для всіх з посиланням». Превью створяться автоматично.</span>
         </div>
-
-      </section>
-
-      <!-- Вибір фото -->
-      <section class="form-section">
-
-        <label class="file-btn" for="photos-input">
-          Вибрати фото
-          <input type="file" id="photos-input" multiple accept="image/*" />
-        </label>
-        <p class="file-count" id="file-count"></p>
-        <ul class="file-list" id="file-list"></ul>
 
       </section>
 
