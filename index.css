@@ -188,12 +188,11 @@ body {
 }
 
 .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  columns: 3;
+  column-gap: 16px;
 }
-@media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .gallery-grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .gallery-grid { columns: 2; } }
+@media (max-width: 480px) { .gallery-grid { columns: 1; } }
 
 .photo-item {
   background: var(--white);
@@ -203,8 +202,9 @@ body {
   opacity: 0;
   animation: fadeUp 0.6s ease forwards;
   cursor: pointer;
-  /* прибирає зайвий відступ знизу зображення */
   font-size: 0;
+  break-inside: avoid;
+  margin-bottom: 16px;
 }
 
 .photo-item img {
