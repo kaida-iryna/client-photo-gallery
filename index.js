@@ -97,7 +97,7 @@ let currentIndex = 0;
 
 function openLightbox(index) {
   currentIndex   = index;
-  lbImg.src      = photos[index].full;
+  lbImg.src      = photos[index].thumb;
   lbDl.href      = photos[index].full;
   lbDl.download  = photos[index].name || ('photo_' + (index + 1) + '.jpg');
   lbCounter.textContent = (index + 1) + ' / ' + photos.length;
