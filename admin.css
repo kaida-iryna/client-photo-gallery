@@ -1,0 +1,246 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-dark:   #1c2b1c;
+  --green-mid:    #243324;
+  --white:        #ffffff;
+  --white-faded:  rgba(255, 255, 255, 0.6);
+  --white-border: rgba(255, 255, 255, 0.15);
+  --text-muted:   rgba(255, 255, 255, 0.45);
+}
+
+body {
+  background: var(--green-dark);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+}
+
+/* ── Шапка ── */
+.page-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--white);
+}
+
+.page-title em {
+  font-style: italic;
+  color: var(--white-faded);
+}
+
+.page-sub {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ── Секції ── */
+.form-section {
+  margin-bottom: 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--white-border);
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--white-faded);
+  margin-bottom: 28px;
+}
+
+/* ── Поля вводу ── */
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--white-faded);
+  margin-bottom: 8px;
+}
+
+.field .hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.field input[type="text"] {
+  width: 100%;
+  background: var(--green-mid);
+  border: 1px solid var(--white-border);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field input[type="text"]:focus {
+  border-color: var(--white-faded);
+}
+
+.field input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Кастомна кнопка вибору файлів ── */
+.file-btn {
+  display: inline-block;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--white-border);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  margin-bottom: 16px;
+}
+.file-btn:hover { border-color: var(--white-faded); color: var(--white-faded); }
+
+/* ховаємо стандартний інпут всередині кнопки */
+.file-btn input[type="file"] {
+  display: none;
+}
+
+.file-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Список файлів ── */
+.file-list {
+  list-style: none;
+  margin-top: 16px;
+}
+
+.file-list li {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--white-border);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ── Кнопка завантаження ── */
+.btn-upload {
+  width: 100%;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 18px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  margin-bottom: 40px;
+}
+
+.btn-upload:hover { background: var(--white); color: var(--green-dark); }
+.btn-upload:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Прогрес ── */
+.progress-section {
+  margin-bottom: 40px;
+}
+
+.progress-bar-bg {
+  height: 1px;
+  background: var(--white-border);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--white);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--white-faded);
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.log { list-style: none; }
+
+.log li {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 3px 0;
+  letter-spacing: 0.03em;
+}
+
+.log li.done  { color: var(--white-faded); }
+.log li.error { color: #e88; }
+
+/* ── Результат ── */
+.result-section {
+  padding: 32px;
+  border: 1px solid var(--white-border);
+  text-align: center;
+}
+
+.result-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.result-link {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--white);
+  word-break: break-all;
+  margin-bottom: 20px;
+}
+
+.btn-copy {
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+.btn-copy:hover { background: var(--white); color: var(--green-dark); }

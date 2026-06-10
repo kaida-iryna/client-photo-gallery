@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Завантаження альбому</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <div class="page">
+
+    <header class="page-header">
+      <h1 class="page-title">Ірина <em>Кайда</em></h1>
+      <p class="page-sub">Завантаження альбому</p>
+    </header>
+
+    <main class="form-wrap">
+
+      <!-- Дані альбому -->
+      <section class="form-section">
+
+        <div class="field">
+          <label for="album-name">Назва альбому</label>
+          <input type="text" id="album-name" />
+        </div>
+
+        <div class="field">
+          <label for="drive-link">Посилання на папку Google Drive</label>
+          <input type="text" id="drive-link" />
+          <span class="hint">Папка з оригіналами — має бути відкрита «для всіх з посиланням»</span>
+        </div>
+
+      </section>
+
+      <!-- Вибір фото -->
+      <section class="form-section">
+
+        <label class="file-btn" for="photos-input">
+          Вибрати фото
+          <input type="file" id="photos-input" multiple accept="image/*" />
+        </label>
+        <p class="file-count" id="file-count"></p>
+        <ul class="file-list" id="file-list"></ul>
+
+      </section>
+
+      <!-- Кнопка запуску -->
+      <button class="btn-upload" id="btn-upload">
+        Завантажити альбом
+      </button>
+
+      <!-- Прогрес -->
+      <div class="progress-section" id="progress-section" style="display: none;">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-text" id="progress-text"></p>
+        <ul class="log" id="log"></ul>
+      </div>
+
+      <!-- Результат -->
+      <div class="result-section" id="result-section" style="display: none;">
+        <p class="result-label">Посилання для клієнта:</p>
+        <p class="result-link" id="result-link"></p>
+        <button class="btn-copy" id="btn-copy">Скопіювати посилання</button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
