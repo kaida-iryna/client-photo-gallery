@@ -2,9 +2,11 @@
 
 const THUMB_MAX_SIZE = 1200;
 const THUMB_QUALITY  = 0.78;
-const ALBUMS_PATH    = 'albums';  // папка в Cloudinary для albums.json
+const ALBUMS_PATH    = 'albums';
 
 // Елементи сторінки
+const photosInput     = document.getElementById('photos-input');
+const fileList        = document.getElementById('file-list');
 const btnUpload       = document.getElementById('btn-upload');
 const progressSection = document.getElementById('progress-section');
 const progressFill    = document.getElementById('progress-fill');
@@ -22,14 +24,12 @@ function getAlbumsUrl() {
     || ('https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json');
 }
 
-// Завантажує albums.json і малює список
 async function loadAlbums() {
-  const listEl = document.getElementById('albums-list');
+  const listEl  = document.getElementById('albums-list');
   const emptyEl = document.getElementById('albums-empty');
 
   try {
-    const url  = getAlbumsUrl();
-    const resp = await fetch(url + '?t=' + Date.now()); // ?t= щоб уникнути кешу
+    const resp = await fetch(getAlbumsUrl() + '?t=' + Date.now());
     if (!resp.ok) throw new Error('не знайдено');
     const data = await resp.json();
 
@@ -40,18 +40,20 @@ async function loadAlbums() {
       return;
     }
 
-    // малюємо кожен альбом
     data.albums.forEach(function(album) {
-      listEl.appendChild(buildAlbumRow(album));
+      listEl.appendChild(buildAlbumWrapper(album));
     });
 
   } catch (e) {
-    emptyEl.textContent = 'Альбомів ще немає';
+    if (emptyEl) emptyEl.textContent = 'Альбомів ще немає';
   }
 }
 
-// Будує рядок одного альбому
-function buildAlbumRow(album) {
+// Будує обгортку: рядок альбому + стрічка фото
+function buildAlbumWrapper(album) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'album-wrapper';
+
   const row = document.createElement('div');
   row.className = 'album-row';
 
@@ -65,13 +67,24 @@ function buildAlbumRow(album) {
   info.innerHTML = '<div class="album-name">' + album.name + '</div>'
                  + '<div class="album-date">' + (album.date || '') + '</div>';
 
-  // посилання на галерею
   const link = document.createElement('a');
   link.className = 'album-link';
   link.href      = SITE_URL + '/?a=' + album.id;
   link.target    = '_blank';
   link.textContent = '↗ відкрити';
   link.addEventListener('click', function(e) { e.stopPropagation(); });
+
+  // кнопка керування фото
+  const strip = document.createElement('div');
+  strip.className = 'photo-strip';
+
+  const btnManage = document.createElement('button');
+  btnManage.className  = 'btn-manage';
+  btnManage.textContent = '▾ фото';
+  btnManage.addEventListener('click', function(e) {
+    e.stopPropagation();
+    togglePhotoStrip(album.id, strip, btnManage);
+  });
 
   // перемикач публічний
   const toggleWrap = document.createElement('div');
@@ -105,21 +118,93 @@ function buildAlbumRow(album) {
   row.appendChild(thumb);
   row.appendChild(info);
   row.appendChild(link);
+  row.appendChild(btnManage);
   row.appendChild(toggleWrap);
 
-  // клік по рядку відкриває галерею
   row.addEventListener('click', function() {
     window.open(SITE_URL + '/?a=' + album.id, '_blank');
   });
 
-  return row;
+  wrapper.appendChild(row);
+  wrapper.appendChild(strip);
+  return wrapper;
 }
 
-// Оновлює поле public для одного альбому в albums.json
+// Відкриває/закриває стрічку фото альбому
+async function togglePhotoStrip(albumId, stripEl, btn) {
+  if (stripEl.classList.contains('open')) {
+    stripEl.classList.remove('open');
+    btn.textContent = '▾ фото';
+    return;
+  }
+
+  btn.textContent = '...';
+
+  try {
+    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/albums/' + albumId + '/photos.json';
+    const resp = await fetch(url + '?t=' + Date.now());
+    if (!resp.ok) throw new Error('photos.json не знайдено');
+    const data = await resp.json();
+
+    stripEl.innerHTML = '';
+    data.photos.forEach(function(photo) {
+      stripEl.appendChild(buildPhotoThumb(albumId, photo, stripEl));
+    });
+
+    stripEl.classList.add('open');
+    btn.textContent = '▴ фото';
+  } catch (e) {
+    btn.textContent = '▾ фото';
+  }
+}
+
+// Будує превью одного фото з кнопкою видалення
+function buildPhotoThumb(albumId, photo, stripEl) {
+  const item = document.createElement('div');
+  item.className = 'strip-item';
+
+  const img = document.createElement('img');
+  img.src = photo.thumb;
+  img.alt = photo.name;
+
+  const del = document.createElement('button');
+  del.className = 'btn-del-photo';
+  del.title     = 'Видалити';
+  del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+  del.addEventListener('click', async function(e) {
+    e.stopPropagation();
+    if (!confirm('Видалити ' + photo.name + '?')) return;
+    del.disabled = true;
+    try {
+      await deletePhotoFromAlbum(albumId, photo.name);
+      item.remove();
+    } catch (err) {
+      del.disabled = false;
+    }
+  });
+
+  item.appendChild(img);
+  item.appendChild(del);
+  return item;
+}
+
+// Видаляє фото з photos.json
+async function deletePhotoFromAlbum(albumId, photoName) {
+  const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/albums/' + albumId + '/photos.json';
+  const resp = await fetch(url + '?t=' + Date.now());
+  if (!resp.ok) throw new Error('photos.json не знайдено');
+  const data = await resp.json();
+
+  data.photos = data.photos.filter(function(p) { return p.name !== photoName; });
+
+  const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  await uploadToCloudinary(jsonBlob, 'albums/' + albumId, 'photos.json', 'raw');
+}
+
+// Оновлює поле public для одного альбому
 async function updateAlbumPublic(albumId, isPublic) {
   try {
-    const url  = getAlbumsUrl();
-    const resp = await fetch(url + '?t=' + Date.now());
+    const resp = await fetch(getAlbumsUrl() + '?t=' + Date.now());
     const data = await resp.json();
 
     data.albums = data.albums.map(function(a) {
@@ -132,45 +217,53 @@ async function updateAlbumPublic(albumId, isPublic) {
   }
 }
 
-// Завантажує оновлений albums.json на Cloudinary
 async function saveAlbums(data) {
   const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = await uploadToCloudinary(jsonBlob, ALBUMS_PATH, 'index.json', 'raw');
   localStorage.setItem('albums_url', url);
 }
 
-// Додає новий альбом до albums.json (або створює файл якщо його немає)
 async function addAlbumToList(albumData) {
   let existing = { albums: [] };
 
   try {
-    const url  = getAlbumsUrl();
-    const resp = await fetch(url + '?t=' + Date.now());
+    const resp = await fetch(getAlbumsUrl() + '?t=' + Date.now());
     if (resp.ok) existing = await resp.json();
-  } catch (e) {
-    // файл ще не існує — починаємо з порожнього списку
-  }
+  } catch (e) {}
 
   if (!existing.albums) existing.albums = [];
 
-  // якщо альбом вже є — оновлюємо, якщо ні — додаємо
   const index = existing.albums.findIndex(function(a) { return a.id === albumData.id; });
   if (index >= 0) {
     existing.albums[index] = albumData;
   } else {
-    existing.albums.unshift(albumData); // додаємо на початок (новіші зверху)
+    existing.albums.unshift(albumData);
   }
 
   await saveAlbums(existing);
 }
 
+// ── Вибір файлів ─────────────────────────────────────────────
+
+photosInput.addEventListener('change', function() {
+  const files     = Array.from(photosInput.files);
+  const fileCount = document.getElementById('file-count');
+  fileList.innerHTML = '';
+  fileCount.textContent = files.length + ' фото вибрано';
+
+  files.forEach(function(file) {
+    const sizeInMb = (file.size / 1024 / 1024).toFixed(1);
+    const item     = document.createElement('li');
+    item.innerHTML = '<span>' + file.name + '</span><span>' + sizeInMb + ' MB</span>';
+    fileList.appendChild(item);
+  });
+});
+
 // Кнопка "Скопіювати посилання"
 btnCopy.addEventListener('click', function() {
   navigator.clipboard.writeText(resultLink.textContent);
   btnCopy.textContent = 'Скопійовано!';
-  setTimeout(function() {
-    btnCopy.textContent = 'Скопіювати посилання';
-  }, 2000);
+  setTimeout(function() { btnCopy.textContent = 'Скопіювати посилання'; }, 2000);
 });
 
 // ── Стиснення фото ────────────────────────────────────────────
@@ -198,7 +291,6 @@ function resizePhoto(file, maxSize, quality) {
         canvas.width  = width;
         canvas.height = height;
         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-
         canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', quality);
       };
       img.src = event.target.result;
@@ -231,10 +323,9 @@ async function uploadToCloudinary(blob, folder, publicId, resourceType, format) 
 
 async function getDriveFiles(folderId) {
   const params = new URLSearchParams({
-    q:        "'" + folderId + "' in parents and trashed=false and mimeType contains 'image/'",
+    q:        "'" + folderId + "' in parents and trashed=false",
     key:      DRIVE_API_KEY,
     fields:   'files(id,name)',
-    orderBy:  'name',
     pageSize: '1000'
   });
 
@@ -302,9 +393,10 @@ async function uploadAlbum() {
   const albumId       = generateAlbumId(albumName);
   const driveInput    = document.getElementById('drive-link').value.trim();
   const driveFolderId = extractDriveId(driveInput);
+  const files         = Array.from(photosInput.files);
 
-  if (!albumName || !driveInput) {
-    alert('Заповни всі поля');
+  if (!albumName || !driveInput || files.length === 0) {
+    alert('Заповни всі поля і вибери фото');
     return;
   }
 
@@ -317,43 +409,32 @@ async function uploadAlbum() {
 
   try {
     setProgress(0, 'Читаю Google Drive...');
-    const driveFiles  = await getDriveFiles(driveFolderId);
-    const fileNames   = Object.keys(driveFiles);
-
-    if (fileNames.length === 0) {
-      throw new Error('У папці Drive не знайдено фото. Перевір посилання і доступ.');
-    }
-
-    addLog('Google Drive: знайдено ' + fileNames.length + ' фото');
+    const driveFiles = await getDriveFiles(driveFolderId);
+    addLog('Google Drive: знайдено ' + Object.keys(driveFiles).length + ' файлів');
 
     const photos = [];
 
-    for (let i = 0; i < fileNames.length; i++) {
-      const fileName = fileNames[i];
-      const fileId   = driveFiles[fileName];
-      const percent  = Math.round(((i + 1) / fileNames.length) * 88);
-      setProgress(percent, (i + 1) + ' з ' + fileNames.length + ' фото');
+    for (let i = 0; i < files.length; i++) {
+      const file    = files[i];
+      const percent = Math.round(((i + 1) / files.length) * 88);
+      setProgress(percent, (i + 1) + ' з ' + files.length + ' фото');
 
-      // завантажуємо оригінал з Drive
-      const driveUrl  = getDriveDownloadUrl(fileId);
-      const resp      = await fetch(driveUrl);
-      if (!resp.ok) throw new Error('Не вдалось завантажити ' + fileName + ' з Drive');
-      const origBlob  = await resp.blob();
-
-      // стискаємо в браузері
-      const thumbBlob = await resizePhoto(origBlob, THUMB_MAX_SIZE, THUMB_QUALITY);
-
-      const thumbUrl = await uploadToCloudinary(
+      const thumbBlob = await resizePhoto(file, THUMB_MAX_SIZE, THUMB_QUALITY);
+      const thumbUrl  = await uploadToCloudinary(
         thumbBlob,
         'albums/' + albumId + '/thumbs',
-        fileName.replace(/\.[^.]+$/, ''),
+        file.name.replace(/\.[^.]+$/, ''),
         'image'
       );
 
       if (i === 0) firstThumbUrl = thumbUrl;
 
-      photos.push({ name: fileName, thumb: thumbUrl, full: driveUrl });
-      addLog('✓ ' + fileName);
+      const fileId  = driveFiles[file.name];
+      const fullUrl = fileId ? getDriveDownloadUrl(fileId) : thumbUrl;
+      if (!fileId) addLog('⚠ ' + file.name + ' — не знайдено в Drive', true);
+
+      photos.push({ name: file.name, thumb: thumbUrl, full: fullUrl });
+      addLog('✓ ' + file.name);
     }
 
     setProgress(93, 'Зберігаю photos.json...');
@@ -408,9 +489,8 @@ async function importAlbum() {
 
   try {
     const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/albums/' + albumId + '/photos.json';
-    statusEl.textContent = 'Завантажую ' + url;
     const resp = await fetch(url + '?t=' + Date.now());
-    if (!resp.ok) throw new Error('Альбом не знайдено: ' + albumId + ' (HTTP ' + resp.status + ')');
+    if (!resp.ok) throw new Error('Альбом не знайдено: ' + albumId);
     const data = await resp.json();
 
     statusEl.textContent = 'Зберігаю в список...';
@@ -426,7 +506,8 @@ async function importAlbum() {
 
     input.value = '';
     statusEl.textContent = '✓ Додано';
-    loadAlbums();
+    await loadAlbums();
+    document.getElementById('albums-list').scrollIntoView({ behavior: 'smooth' });
 
   } catch (e) {
     statusEl.textContent = '✗ ' + e.message;
@@ -438,5 +519,4 @@ async function importAlbum() {
 
 document.getElementById('btn-import').addEventListener('click', importAlbum);
 
-// Завантажуємо список альбомів при відкритті сторінки
 loadAlbums();
