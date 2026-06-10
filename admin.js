@@ -392,21 +392,28 @@ btnUpload.addEventListener('click', uploadAlbum);
 // ── Імпорт існуючого альбому ─────────────────────────────────
 
 async function importAlbum() {
-  const input   = document.getElementById('import-id');
-  const albumId = input.value.trim();
-  if (!albumId) return;
+  const input    = document.getElementById('import-id');
+  const statusEl = document.getElementById('import-status');
+  const albumId  = input.value.trim();
+
+  if (!albumId) {
+    statusEl.textContent = 'Введи ID альбому';
+    return;
+  }
 
   const btn = document.getElementById('btn-import');
   btn.textContent = '...';
   btn.disabled    = true;
+  statusEl.textContent = 'Шукаю альбом...';
 
   try {
-    // підтягуємо photos.json існуючого альбому
     const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/albums/' + albumId + '/photos.json';
+    statusEl.textContent = 'Завантажую ' + url;
     const resp = await fetch(url + '?t=' + Date.now());
-    if (!resp.ok) throw new Error('Альбом не знайдено: ' + albumId);
+    if (!resp.ok) throw new Error('Альбом не знайдено: ' + albumId + ' (HTTP ' + resp.status + ')');
     const data = await resp.json();
 
+    statusEl.textContent = 'Зберігаю в список...';
     const firstThumb = data.photos && data.photos[0] ? data.photos[0].thumb : '';
 
     await addAlbumToList({
@@ -418,10 +425,11 @@ async function importAlbum() {
     });
 
     input.value = '';
+    statusEl.textContent = '✓ Додано';
     loadAlbums();
 
   } catch (e) {
-    alert(e.message);
+    statusEl.textContent = '✗ ' + e.message;
   }
 
   btn.textContent = 'Додати';
