@@ -115,12 +115,14 @@ function resizePhoto(file, maxSize, quality) {
 }
 
 // ── Завантаження на Cloudinary ────────────────────────────────
-async function uploadToCloudinary(blob, folder, publicId, resourceType) {
+async function uploadToCloudinary(blob, folder, publicId, resourceType, format) {
   const formData = new FormData();
   formData.append('file', blob);
   formData.append('upload_preset', UPLOAD_PRESET);
   formData.append('folder', folder);
   formData.append('public_id', publicId);
+  // формат потрібен для raw-файлів щоб Cloudinary додав розширення
+  if (format) formData.append('format', format);
 
   const url = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/' + resourceType + '/upload';
 
@@ -237,7 +239,7 @@ async function uploadAlbum() {
     const albumData = { name: albumName, id: albumId, photos: photos };
     const jsonBlob  = new Blob([JSON.stringify(albumData, null, 2)], { type: 'application/json' });
 
-    await uploadToCloudinary(jsonBlob, 'albums/' + albumId, 'photos', 'raw');
+    await uploadToCloudinary(jsonBlob, 'albums/' + albumId, 'photos', 'raw', 'json');
 
     // 4. Готово
     setProgress(100, 'Готово!');
