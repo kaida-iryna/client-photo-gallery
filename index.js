@@ -63,6 +63,8 @@ function buildGallery(data) {
     img.src      = photo.thumb;
     img.alt      = albumName + ' — фото ' + (index + 1);
     img.loading  = 'lazy';
+    // перераховуємо розкладку кожного разу як завантажується нове фото
+    img.addEventListener('load', layoutMasonry);
 
     const overlay = document.createElement('div');
     overlay.className = 'photo-overlay';
@@ -174,5 +176,46 @@ async function downloadAll() {
   btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg> Готово! Завантажено';
   progressText.textContent = 'Архів збережено на ваш пристрій';
 }
+
+// ── MASONRY ───────────────────────────────────────────────────
+function layoutMasonry() {
+  const grid  = document.getElementById('gallery');
+  const items = Array.from(grid.querySelectorAll('.photo-item'));
+  if (items.length === 0) return;
+
+  // кількість колонок залежно від ширини екрана
+  const containerWidth = grid.offsetWidth;
+  let columnCount = 3;
+  if (containerWidth < 900) columnCount = 2;
+  if (containerWidth < 480) columnCount = 1;
+
+  const gap         = 16;
+  const columnWidth = (containerWidth - gap * (columnCount - 1)) / columnCount;
+
+  // висота кожної колонки — спочатку всі нульові
+  const columnHeights = new Array(columnCount).fill(0);
+
+  items.forEach(function(item) {
+    // знаходимо індекс найнижчої колонки
+    const shortestIndex = columnHeights.indexOf(Math.min.apply(null, columnHeights));
+
+    const x = shortestIndex * (columnWidth + gap);
+    const y = columnHeights[shortestIndex];
+
+    item.style.position = 'absolute';
+    item.style.width    = columnWidth + 'px';
+    item.style.left     = x + 'px';
+    item.style.top      = y + 'px';
+
+    // додаємо висоту цього фото до обраної колонки
+    columnHeights[shortestIndex] += item.offsetHeight + gap;
+  });
+
+  // встановлюємо висоту контейнера щоб він не колапсував
+  grid.style.height = Math.max.apply(null, columnHeights) + 'px';
+}
+
+// перераховуємо при зміні розміру вікна
+window.addEventListener('resize', layoutMasonry);
 
 init();
