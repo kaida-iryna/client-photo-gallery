@@ -197,12 +197,14 @@ body {
 
 .photo-item {
   background: var(--white);
-  padding: 8px;
+  padding: 16px;
   position: relative;
   overflow: hidden;
   opacity: 0;
   animation: fadeUp 0.6s ease forwards;
   cursor: pointer;
+  /* прибирає зайвий відступ знизу зображення */
+  font-size: 0;
 }
 
 .photo-item img {
@@ -215,7 +217,7 @@ body {
 
 .photo-overlay {
   position: absolute;
-  inset: 8px;
+  inset: 16px;
   background: rgba(0, 0, 0, 0.35);
   opacity: 0;
   transition: opacity 0.3s ease;
