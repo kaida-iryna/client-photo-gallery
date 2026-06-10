@@ -207,8 +207,7 @@ async function uploadToCloudinary(blob, folder, publicId, resourceType, format) 
   formData.append('file', blob);
   formData.append('upload_preset', UPLOAD_PRESET);
   formData.append('folder', folder);
-  formData.append('public_id', publicId);
-  if (format) formData.append('format', format);
+  formData.append('public_id', format ? publicId + '.' + format : publicId);
 
   const url      = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/' + resourceType + '/upload';
   const response = await fetch(url, { method: 'POST', body: formData });
