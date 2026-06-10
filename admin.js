@@ -16,13 +16,19 @@ const btnCopy         = document.getElementById('btn-copy');
 
 // ── Список альбомів ───────────────────────────────────────────
 
+// Versioned URL зберігаємо після кожного запису — CDN кешує unversioned надовго
+function getAlbumsUrl() {
+  return localStorage.getItem('albums_url')
+    || ('https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json');
+}
+
 // Завантажує albums.json і малює список
 async function loadAlbums() {
   const listEl = document.getElementById('albums-list');
   const emptyEl = document.getElementById('albums-empty');
 
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
+    const url  = getAlbumsUrl();
     const resp = await fetch(url + '?t=' + Date.now()); // ?t= щоб уникнути кешу
     if (!resp.ok) throw new Error('не знайдено');
     const data = await resp.json();
@@ -112,7 +118,7 @@ function buildAlbumRow(album) {
 // Оновлює поле public для одного альбому в albums.json
 async function updateAlbumPublic(albumId, isPublic) {
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
+    const url  = getAlbumsUrl();
     const resp = await fetch(url + '?t=' + Date.now());
     const data = await resp.json();
 
@@ -129,7 +135,8 @@ async function updateAlbumPublic(albumId, isPublic) {
 // Завантажує оновлений albums.json на Cloudinary
 async function saveAlbums(data) {
   const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  await uploadToCloudinary(jsonBlob, ALBUMS_PATH, 'index.json', 'raw');
+  const url = await uploadToCloudinary(jsonBlob, ALBUMS_PATH, 'index.json', 'raw');
+  localStorage.setItem('albums_url', url);
 }
 
 // Додає новий альбом до albums.json (або створює файл якщо його немає)
@@ -137,7 +144,7 @@ async function addAlbumToList(albumData) {
   let existing = { albums: [] };
 
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
+    const url  = getAlbumsUrl();
     const resp = await fetch(url + '?t=' + Date.now());
     if (resp.ok) existing = await resp.json();
   } catch (e) {
