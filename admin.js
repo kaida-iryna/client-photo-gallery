@@ -22,7 +22,7 @@ async function loadAlbums() {
   const emptyEl = document.getElementById('albums-empty');
 
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/albums.json';
+    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
     const resp = await fetch(url + '?t=' + Date.now()); // ?t= щоб уникнути кешу
     if (!resp.ok) throw new Error('не знайдено');
     const data = await resp.json();
@@ -112,7 +112,7 @@ function buildAlbumRow(album) {
 // Оновлює поле public для одного альбому в albums.json
 async function updateAlbumPublic(albumId, isPublic) {
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/albums.json';
+    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
     const resp = await fetch(url + '?t=' + Date.now());
     const data = await resp.json();
 
@@ -129,7 +129,7 @@ async function updateAlbumPublic(albumId, isPublic) {
 // Завантажує оновлений albums.json на Cloudinary
 async function saveAlbums(data) {
   const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  await uploadToCloudinary(jsonBlob, ALBUMS_PATH, 'albums', 'raw', 'json');
+  await uploadToCloudinary(jsonBlob, ALBUMS_PATH, 'index.json', 'raw');
 }
 
 // Додає новий альбом до albums.json (або створює файл якщо його немає)
@@ -137,7 +137,7 @@ async function addAlbumToList(albumData) {
   let existing = { albums: [] };
 
   try {
-    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/albums.json';
+    const url  = 'https://res.cloudinary.com/' + CLOUD_NAME + '/raw/upload/' + ALBUMS_PATH + '/index.json';
     const resp = await fetch(url + '?t=' + Date.now());
     if (resp.ok) existing = await resp.json();
   } catch (e) {
