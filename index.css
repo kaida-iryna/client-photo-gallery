@@ -108,16 +108,6 @@ body {
   animation: fadeUp 0.9s ease 0.1s forwards;
 }
 
-.hero-ornament {
-  font-size: 11px;
-  letter-spacing: 0.35em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  opacity: 0;
-  animation: fadeUp 0.9s ease 0.1s forwards;
-}
-
 .hero-title {
   font-family: 'Bodoni Moda', serif;
   font-size: clamp(44px, 9vw, 84px);
@@ -130,17 +120,6 @@ body {
   animation: fadeUp 0.9s ease 0.25s forwards;
 }
 .hero-title em { font-style: normal; color: var(--text-muted); }
-
-.hero-sub {
-  font-family: 'Bodoni Moda', serif;
-  font-style: italic;
-  font-optical-sizing: auto;
-  font-size: 17px;
-  color: var(--text-muted);
-  margin-top: 12px;
-  opacity: 0;
-  animation: fadeUp 0.9s ease 0.4s forwards;
-}
 
 /* ── DOWNLOAD ALL ── */
 .dl-all-wrap {
